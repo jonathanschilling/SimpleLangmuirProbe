@@ -19,11 +19,15 @@ class SimpleLangmuirProbe : public QMainWindow
 
 public slots:
     void updateTeSliderPos(int newTeSliderPos)     { this->teSliderPos   = newTeSliderPos;   updateTe(); }
+    void updateTiSliderPos(int newTiSliderPos)     { this->tiSliderPos   = newTiSliderPos;   updateTi(); }
     void updateNSliderPos(int newNSliderPos)       { this->nSliderPos    = newNSliderPos;    updateN(); }
     void updatePhiPSliderPos(int newPhipSliderPos) { this->phipSliderPos = newPhipSliderPos; updatePhiP(); }
 
     void updateMinTe(double newMinTe) { this->minTe = newMinTe; updateTe(); }
     void updateMaxTe(double newMaxTe) { this->maxTe = newMaxTe; updateTe(); }
+
+    void updateMinTi(double newMinTi) { this->minTi = newMinTi; updateTi(); }
+    void updateMaxTi(double newMaxTi) { this->maxTi = newMaxTi; updateTi(); }
 
     void updateMinN(double newMinN) { this->minN = newMinN; updateN(); }
     void updateMaxN(double newMaxN) { this->maxN = newMaxN; updateN(); }
@@ -55,6 +59,7 @@ private:
     void setInitialValues();
 
     void updateTe();
+    void updateTi();
     void updateN();
     void updatePhiP();
 
@@ -65,12 +70,13 @@ private:
     bool initialized;
     bool autoscale;
 
-    int teSliderPos, nSliderPos, phipSliderPos;
+    int teSliderPos, tiSliderPos, nSliderPos, phipSliderPos;
     double minTe, maxTe;
+    double minTi, maxTi;
     double minN, maxN;
     double minPhiP, maxPhiP;
 
-    double te, n, phiP;
+    double te, ti, n, phiP;
 
     int numPoints;
     double minU, maxU;
@@ -80,3 +86,4 @@ private:
 
 };
 #endif // SIMPLELANGMUIRPROBE_H
+

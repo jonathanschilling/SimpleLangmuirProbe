@@ -20,11 +20,15 @@ SimpleLangmuirProbe::~SimpleLangmuirProbe()
 
 void SimpleLangmuirProbe::setupConnections() {
     connect(ui->teSlider,   SIGNAL(valueChanged(int)), this, SLOT(updateTeSliderPos(int)));
+    connect(ui->tiSlider,   SIGNAL(valueChanged(int)), this, SLOT(updateTiSliderPos(int)));
     connect(ui->nSlider,    SIGNAL(valueChanged(int)), this, SLOT(updateNSliderPos(int)));
     connect(ui->phipSlider, SIGNAL(valueChanged(int)), this, SLOT(updatePhiPSliderPos(int)));
 
     connect(ui->minTeBox, SIGNAL(valueChanged(double)), this, SLOT(updateMinTe(double)));
     connect(ui->maxTeBox, SIGNAL(valueChanged(double)), this, SLOT(updateMaxTe(double)));
+
+    connect(ui->minTiBox, SIGNAL(valueChanged(double)), this, SLOT(updateMinTi(double)));
+    connect(ui->maxTiBox, SIGNAL(valueChanged(double)), this, SLOT(updateMaxTi(double)));
 
     connect(ui->minNBox, SIGNAL(valueChanged(double)), this, SLOT(updateMinN(double)));
     connect(ui->maxNBox, SIGNAL(valueChanged(double)), this, SLOT(updateMaxN(double)));
@@ -47,6 +51,9 @@ void SimpleLangmuirProbe::setInitialValues() {
     updateMinTe(ui->minTeBox->value());
     updateMaxTe(ui->maxTeBox->value());
 
+    updateMinTi(ui->minTiBox->value());
+    updateMaxTi(ui->maxTiBox->value());
+
     updateMinN(ui->minNBox->value());
     updateMaxN(ui->maxNBox->value());
 
@@ -54,6 +61,7 @@ void SimpleLangmuirProbe::setInitialValues() {
     updateMaxPhiP(ui->maxPhiPBox->value());
 
     updateTeSliderPos(ui->teSlider->value());
+    updateTiSliderPos(ui->tiSlider->value());
     updateNSliderPos(ui->nSlider->value());
     updatePhiPSliderPos(ui->phipSlider->value());
 
@@ -81,6 +89,30 @@ void SimpleLangmuirProbe::updateTe() {
     QString teLabelStr = QString(strstr.str().c_str());
 
     this->ui->teLabel->setText(teLabelStr);
+
+    if (initialized) {
+        updatePlot();
+    }
+}
+
+void SimpleLangmuirProbe::updateTi() {
+    int sliderMin = this->ui->tiSlider->minimum();
+    int sliderMax = this->ui->tiSlider->maximum();
+    int sliderSpan = sliderMax - sliderMin;
+
+    double relSliderPos = (this->tiSliderPos - sliderMin) / ((double)sliderSpan);
+    std::cout << "rel. slider pos of Ti: " << relSliderPos << std::endl;
+
+    double tiSpan = this->maxTi - this->minTi;
+    this->ti = this->minTi + relSliderPos*tiSpan;
+
+    std::stringstream strstr;
+    strstr << "Ti = ";
+    strstr << this->ti;
+    strstr << " eV";
+    QString tiLabelStr = QString(strstr.str().c_str());
+
+    this->ui->tiLabel->setText(tiLabelStr);
 
     if (initialized) {
         updatePlot();
@@ -154,7 +186,7 @@ void SimpleLangmuirProbe::updateEvalRange() {
 
 void SimpleLangmuirProbe::updatePlot() {
 
-    std::cout << "Te="<< this->te << " n=" << this->n << " phiP=" << this->phiP << std::endl;
+    std::cout << "Te="<< this->te << "Ti=" << this->ti << " n=" << this->n << " phiP=" << this->phiP << std::endl;
     std::cout << "   from " << this->minU << " to " << this->maxU << " at " << this->numPoints << " points" << std::endl;
 
     for (int i=0; i<numPoints; ++i) {
@@ -174,8 +206,8 @@ void SimpleLangmuirProbe::updatePlot() {
 
     if (newGraph) {
         // give the axes some labels:
-        ui->qcp->xAxis->setLabel("x");
-        ui->qcp->yAxis->setLabel("y");
+        ui->qcp->xAxis->setLabel("U / V");
+        ui->qcp->yAxis->setLabel("I / A");
 
         // enable zooming
         ui->qcp->setInteractions(QCP::iRangeZoom);
@@ -209,13 +241,13 @@ double SimpleLangmuirProbe::eval(double biasVoltage) {
 
     double probeSurfaceArea = 7.4e-6; // m^2
     double zEff = 2.0;
-    double ti = 0.0;
 
     double ionMass = 3.344e-27; // D2
 
     double nUnit = 1.0e19;
 
     double teToUse = te;
+    double tiToUse = ti;
     double nToUse = n * nUnit;
 
     /**
@@ -227,13 +259,13 @@ double SimpleLangmuirProbe::eval(double biasVoltage) {
     double gammaE = 1.0; // for now ...
 
     /** ion sound speed in m/s */
-    double c_s_i = sqrt(e*(zEff*teToUse + gammaI*ti)/ionMass);
+    double c_s_i = sqrt(e*(zEff*teToUse + gammaI*tiToUse)/ionMass);
 
     /** ion saturation current density in A/m^2  */
     double j_i_0 = -0.61 * e * nToUse * c_s_i;
 
     /** electron sound speed in m/s */
-    double c_s_e = sqrt(e*(gammaE*teToUse + ti)/(2.0*M_PI*m_e));
+    double c_s_e = sqrt(e*(gammaE*teToUse + tiToUse)/(2.0*M_PI*m_e));
 
     /** electron saturation current density in A/m^2 */
     double j_e_0 = e * nToUse * c_s_e;
