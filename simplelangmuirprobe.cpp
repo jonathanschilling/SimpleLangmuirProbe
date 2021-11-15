@@ -247,7 +247,7 @@ double SimpleLangmuirProbe::eval(double biasVoltage) {
     double nUnit = 1.0e19;
 
     double teToUse = te;
-    double tiToUse = ti;
+    double tiToUse = ti * te; // re-interpret ti as Ti/Te
     double nToUse = n * nUnit;
 
     /**
