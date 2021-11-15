@@ -7,6 +7,8 @@
 #include <string>
 #include <sstream>
 
+#include "qcustomplot.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class SimpleLangmuirProbe; }
 QT_END_NAMESPACE
@@ -16,9 +18,9 @@ class SimpleLangmuirProbe : public QMainWindow
     Q_OBJECT
 
 public slots:
-    void updateTe(int newTeSliderPos)     { this->teSliderPos   = newTeSliderPos;   updateTe(); }
-    void updateN(int newNSliderPos)       { this->nSliderPos    = newNSliderPos;    updateN(); }
-    void updatePhiP(int newPhipSliderPos) { this->phipSliderPos = newPhipSliderPos; updatePhiP(); }
+    void updateTeSliderPos(int newTeSliderPos)     { this->teSliderPos   = newTeSliderPos;   updateTe(); }
+    void updateNSliderPos(int newNSliderPos)       { this->nSliderPos    = newNSliderPos;    updateN(); }
+    void updatePhiPSliderPos(int newPhipSliderPos) { this->phipSliderPos = newPhipSliderPos; updatePhiP(); }
 
     void updateMinTe(double newMinTe) { this->minTe = newMinTe; updateTe(); }
     void updateMaxTe(double newMaxTe) { this->maxTe = newMaxTe; updateTe(); }
@@ -29,6 +31,18 @@ public slots:
     void updateMinPhiP(double newMinPhiP) { this->minPhiP = newMinPhiP; updatePhiP(); }
     void updateMaxPhiP(double newMaxPhiP) { this->maxPhiP = newMaxPhiP; updatePhiP(); }
 
+    void updateNumPoints(int newNumPoints) { this->numPoints = newNumPoints; updateEvalRange(); }
+    void updateMinU(double newMinU)        { this->minU = newMinU; updateEvalRange(); }
+    void updateMaxU(double newMaxU)        { this->maxU = newMaxU; updateEvalRange(); }
+
+    void updateAutoscale(int newState) {
+        this->autoscale = (newState != 0);
+
+        if(initialized) {
+            updatePlot();
+        }
+    }
+
 public:
     SimpleLangmuirProbe(QWidget *parent = nullptr);
     ~SimpleLangmuirProbe();
@@ -38,10 +52,18 @@ private:
 
     void setupConnections();
     void updatePlot();
+    void setInitialValues();
 
     void updateTe();
     void updateN();
     void updatePhiP();
+
+    void updateEvalRange();
+
+    double eval(double biasVoltage);
+
+    bool initialized;
+    bool autoscale;
 
     int teSliderPos, nSliderPos, phipSliderPos;
     double minTe, maxTe;
@@ -49,6 +71,12 @@ private:
     double minPhiP, maxPhiP;
 
     double te, n, phiP;
+
+    int numPoints;
+    double minU, maxU;
+
+    QVector<double> U;
+    QVector<double> I;
 
 };
 #endif // SIMPLELANGMUIRPROBE_H
