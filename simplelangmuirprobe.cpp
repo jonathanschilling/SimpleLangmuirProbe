@@ -107,9 +107,9 @@ void SimpleLangmuirProbe::updateTi() {
     this->ti = this->minTi + relSliderPos*tiSpan;
 
     std::stringstream strstr;
-    strstr << "Ti = ";
+    strstr << "Ti/Te = ";
     strstr << this->ti;
-    strstr << " eV";
+    //strstr << " eV";
     QString tiLabelStr = QString(strstr.str().c_str());
 
     this->ui->tiLabel->setText(tiLabelStr);
@@ -186,7 +186,7 @@ void SimpleLangmuirProbe::updateEvalRange() {
 
 void SimpleLangmuirProbe::updatePlot() {
 
-    std::cout << "Te="<< this->te << "Ti=" << this->ti << " n=" << this->n << " phiP=" << this->phiP << std::endl;
+    std::cout << "Te="<< this->te << "Ti/Te=" << this->ti << " n=" << this->n << " phiP=" << this->phiP << std::endl;
     std::cout << "   from " << this->minU << " to " << this->maxU << " at " << this->numPoints << " points" << std::endl;
 
     for (int i=0; i<numPoints; ++i) {
